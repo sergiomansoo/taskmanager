@@ -56,6 +56,7 @@ public class Tarefa {
     @Column(name = "data_conclusao")
     private LocalDateTime dataConclusao;
 
+
     @PrePersist
     public void prePersist() {
         if (dataCriacao == null) {
