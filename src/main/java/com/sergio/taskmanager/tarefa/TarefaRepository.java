@@ -12,4 +12,6 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
 
     List<Tarefa> findByStatus(StatusTarefa status);
 
+    List<Tarefa> findByPrioridadeAndStatus(PrioridadeTarefa prioridade,StatusTarefa status);
+
 }

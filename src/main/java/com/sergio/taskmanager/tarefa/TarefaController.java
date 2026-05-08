@@ -24,10 +24,10 @@ public class TarefaController {
         return tarefaService.lerTodos();
     }
 
-    @PostMapping
-    public ResponseEntity<String> criar(@RequestBody TarefaRequestDTO dto) {
-        tarefaService.criar(dto);
-        return ResponseEntity.ok("Tarefa criada com sucesso!");
+    @GetMapping("/filtrar")
+    public List<TarefaResponseDTO> filtrarPrioridade(@RequestParam(required = false) PrioridadeTarefa prioridade,
+                                                     @RequestParam(required = false) StatusTarefa status){
+        return tarefaService.filtrar(prioridade,status);
     }
 
     @GetMapping("/{id}")
@@ -35,24 +35,29 @@ public class TarefaController {
         TarefaResponseDTO tarefa = tarefaService.ler(id);
         return ResponseEntity.ok(tarefa);
     }
+
+    @PostMapping
+    public ResponseEntity<String> criar(@RequestBody TarefaRequestDTO dto) {
+        tarefaService.criar(dto);
+        return ResponseEntity.ok("Tarefa criada com sucesso!");
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Long id) {
         tarefaService.deletar(id);
         return ResponseEntity.ok("Tarefa deletada com sucesso");
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<TarefaResponseDTO> atualizar(@PathVariable Long id,
                                                        @RequestBody TarefaRequestDTO dto) {
         TarefaResponseDTO tarefaResponseDTO=tarefaService.atualizar(id,dto);
         return ResponseEntity.ok(tarefaResponseDTO);
     }
-    @GetMapping("/filtrar")
-    public List<Tarefa> filtrarPrioridade(@RequestParam PrioridadeTarefa prioridade){
-        return tarefaService.filtrarPrioridade(prioridade);
+    @PatchMapping("/{id}/concluir")
+    public ResponseEntity<TarefaResponseDTO> concluir(@PathVariable Long id){
+        return ResponseEntity.ok(tarefaService.concluir(id));
     }
-    @GetMapping("/filtrar")
-    public List<Tarefa> filtrarStatus(@RequestParam StatusTarefa status){
-        return tarefaService.filtrarStatus(status);
-    }
+
 
 }
