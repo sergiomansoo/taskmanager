@@ -1,4 +1,12 @@
 package com.sergio.taskmanager.usuario.dto;
 
-public record UsuarioResponse() {
+import java.time.LocalDateTime;
+
+public record UsuarioResponse(
+        Long id,
+        String nome,
+        String email,
+        LocalDateTime data_criacao
+) {
+
 }

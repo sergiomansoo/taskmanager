@@ -19,11 +19,11 @@ public class Usuario {
     private Long id;
     @Column(length = 30)
     private String nome;
-    @Column(nullable = false,length = 100)
+    @Column(nullable = false,length = 100,unique = true)
     private String email;
     @Column(length=30)
     private String senha;
-    @Column
+    @Column(nullable = false)
     private LocalDateTime data_criacao;
     @PrePersist
     public void prePersist(){
