@@ -1,9 +1,8 @@
 package com.sergio.taskmanager.usuario;
 
-import com.sergio.taskmanager.tarefa.TarefaService;
+
 import com.sergio.taskmanager.usuario.dto.UsuarioRequest;
 import com.sergio.taskmanager.usuario.dto.UsuarioResponse;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

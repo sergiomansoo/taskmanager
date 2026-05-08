@@ -1,19 +1,22 @@
 package com.sergio.taskmanager.usuario;
 
 import com.sergio.taskmanager.exception.NotFoundException;
+import com.sergio.taskmanager.tarefa.TarefaRepository;
 import com.sergio.taskmanager.usuario.dto.UsuarioRequest;
 
 import com.sergio.taskmanager.usuario.dto.UsuarioResponse;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@RequiredArgsConstructor
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
-    UsuarioService(UsuarioRepository usuarioRepository){
-        this.usuarioRepository=usuarioRepository;
-    }
+    private final TarefaRepository tarefaRepository;
+
+    @Transactional
     public void criar(UsuarioRequest request){
         if(request.nome()==null|| request.nome().isBlank()){
             throw new RuntimeException("Informe um Nome");
@@ -25,7 +28,7 @@ public class UsuarioService {
             throw new RuntimeException("Email ja cadastrado");
         }
         if(request.senha()==null||request.senha().isBlank()||request.senha().length()<7){
-            throw new RuntimeException("Informe uma Senha Valida");
+            throw new RuntimeException("Senha deve possuir mais de 6 caracteres");
         }
         Usuario usuario= Usuario.builder().nome(request.nome())
                 .email(request.email())
@@ -55,11 +58,16 @@ public class UsuarioService {
                         usuario.getData_criacao()
                         )).toList();
     }
+    @Transactional
     public void deletar(Long id){
         Usuario deletar=usuarioRepository.findById(id).
                 orElseThrow(()->new RuntimeException("Nao e possivel deletar usuario inexistente"));
+        if(tarefaRepository.existsById(id)){
+            throw new RuntimeException("Nao e possivel deletar usuario vinculado a tarefas");
+        }
         usuarioRepository.delete(deletar);
     }
+    @Transactional
     public void atualizar(Long id, String nome, String email){
         Usuario usuario=usuarioRepository.findById(id).orElseThrow(
                 ()->new RuntimeException("Usuario nao existe"));

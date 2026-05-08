@@ -14,5 +14,6 @@ StatusTarefa status,
 PrioridadeTarefa prioridadeTarefa,
 LocalDateTime dataCricacao,
 LocalDate dataEntrega,
-LocalDateTime dataConclusao) {
+LocalDateTime dataConclusao,
+Long usuarioId) {
 }

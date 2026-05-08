@@ -20,14 +20,14 @@ public class TarefaController {
     }
 
     @GetMapping
-    public List<TarefaResponseDTO> lerTodos() {
-        return tarefaService.lerTodos();
+    public ResponseEntity<List<TarefaResponseDTO>> lerTodos() {
+        return ResponseEntity.ok(tarefaService.lerTodos());
     }
 
     @GetMapping("/filtrar")
-    public List<TarefaResponseDTO> filtrarPrioridade(@RequestParam(required = false) PrioridadeTarefa prioridade,
+    public ResponseEntity<List<TarefaResponseDTO>> filtrarPrioridade(@RequestParam(required = false) PrioridadeTarefa prioridade,
                                                      @RequestParam(required = false) StatusTarefa status){
-        return tarefaService.filtrar(prioridade,status);
+        return ResponseEntity.ok(tarefaService.filtrar(prioridade,status));
     }
 
     @GetMapping("/{id}")
@@ -35,6 +35,13 @@ public class TarefaController {
         TarefaResponseDTO tarefa = tarefaService.ler(id);
         return ResponseEntity.ok(tarefa);
     }
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<TarefaResponseDTO>> lerTarefasUsuario(@PathVariable Long usuarioId,
+                                                                     @RequestParam(required = false) StatusTarefa status,
+                                                                     @RequestParam(required = false) PrioridadeTarefa prioridade){
+        return ResponseEntity.ok(tarefaService.lerTarefasUsuario(usuarioId,status,prioridade));
+    }
+
 
     @PostMapping
     public ResponseEntity<String> criar(@RequestBody TarefaRequestDTO dto) {
@@ -58,6 +65,7 @@ public class TarefaController {
     public ResponseEntity<TarefaResponseDTO> concluir(@PathVariable Long id){
         return ResponseEntity.ok(tarefaService.concluir(id));
     }
+
 
 
 }

@@ -10,6 +10,7 @@ public record TarefaRequestDTO(
         String descricao,
         StatusTarefa status,
         PrioridadeTarefa prioridade,
-        LocalDate dataEntrega
+        LocalDate dataEntrega,
+        Long usuarioId
 ) {
 }
