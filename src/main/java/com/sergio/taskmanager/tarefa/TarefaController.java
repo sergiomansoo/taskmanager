@@ -27,7 +27,7 @@ public class TarefaController {
         return ResponseEntity.ok("Tarefa criada com sucesso!");
     }
     @PostMapping("/{id}")
-    public ResponseEntity<String> criarId(@RequestParam Long id,@RequestBody TarefaRequestDTO dto) {
+    public ResponseEntity<String> criarId(@PathVariable Long id,@RequestBody TarefaRequestDTO dto) {
         tarefaService.criarId(id,dto);
         return ResponseEntity.ok("Tarefa criada com sucesso!");
     }
