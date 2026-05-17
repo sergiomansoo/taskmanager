@@ -21,24 +21,29 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
     public void register(RegisterRequestDTO registerRequestDTO){
-            if(usuarioRepository.existsByEmail(registerRequestDTO.email())){
+        String email = registerRequestDTO.email().trim().toLowerCase();
+
+            if(usuarioRepository.existsByEmail(email)){
                 throw new RuntimeException("Email ja cadastrado");
             }
-            Usuario user= Usuario.builder()
+        Role role = usuarioRepository.count() == 0 ? Role.ADMIN : Role.USER;
+        Usuario user= Usuario.builder()
                     .nome(registerRequestDTO.nome())
-                    .email(registerRequestDTO.email())
+                    .email(email)
                     .senha(passwordEncoder.encode(registerRequestDTO.senha()))
-                    .role(Role.USER).build();
+                    .role(role).build();
             usuarioRepository.save(user);
     }
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO){
+        String email = loginRequestDTO.email().trim().toLowerCase();
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequestDTO.email(),
+                        email,
                         loginRequestDTO.senha()
                 )
         );
-        String token= jwtService.generateToken(loginRequestDTO.email());
+        String token= jwtService.generateToken(email);
         return new LoginResponseDTO(token);
     }
 }
