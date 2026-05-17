@@ -2,7 +2,6 @@ package com.sergio.taskmanager.tarefa;
 
 import com.sergio.taskmanager.tarefa.enums.PrioridadeTarefa;
 import com.sergio.taskmanager.tarefa.enums.StatusTarefa;
-import jdk.jshell.Snippet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

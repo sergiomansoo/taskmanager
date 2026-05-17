@@ -1,17 +1,18 @@
 package com.sergio.taskmanager.tarefa;
 
+import com.sergio.taskmanager.exception.ForbiddenException;
 import com.sergio.taskmanager.exception.NotFoundException;
 import com.sergio.taskmanager.exception.NotFoundException;
 import com.sergio.taskmanager.tarefa.dto.TarefaRequestDTO;
 import com.sergio.taskmanager.tarefa.dto.TarefaResponseDTO;
 import com.sergio.taskmanager.tarefa.enums.PrioridadeTarefa;
 import com.sergio.taskmanager.tarefa.enums.StatusTarefa;
+import com.sergio.taskmanager.usuario.Usuario;
 import com.sergio.taskmanager.usuario.UsuarioRepository;
-import jakarta.transaction.Status;
+import com.sergio.taskmanager.usuario.enums.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,8 +24,19 @@ public class TarefaService {
 
     private final TarefaRepository tarefaRepository;
     private final UsuarioRepository usuarioRepository;
+    private Usuario getUsuarioLogado(){
+        String email= SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return usuarioRepository.findByEmail(email);
+    }
+    private boolean isAdmin(Usuario usuario){
+        return usuario.getRole()==Role.ADMIN;
+    }
     @Transactional
     public void criar(TarefaRequestDTO dto) {
+        Usuario logado=getUsuarioLogado();
+        Usuario donoDaTarefa = logado;
         if (dto.titulo() == null || dto.titulo().isBlank()) {
             throw new RuntimeException("Informe um título");
         }
@@ -40,17 +52,47 @@ public class TarefaService {
                 .status(dto.status())
                 .prioridade(dto.prioridade())
                 .dataEntrega(dto.dataEntrega())
-                .usuario(usuarioRepository.findById(dto.usuarioId()).orElseThrow(
-                        ()->new RuntimeException("Nao e possivel criar tarefa para um usuario inexistente")
-                ))
+                .usuario(donoDaTarefa)
                 .build();
 
         tarefaRepository.save(tarefa);
+    }
+    public void criarId(Long id, TarefaRequestDTO dto){
+        Usuario logado=getUsuarioLogado();
+        Usuario donoDaTarefa = logado;
+        if(!id.equals(logado.getId())&&!isAdmin(logado)){
+            throw new ForbiddenException("Voce nao possui permissao para criar uma tarefa para outro usuario");
+        }
+        donoDaTarefa = usuarioRepository.findById(id).orElseThrow(
+                    ()->new RuntimeException("Nao e possivel criar tarefa para um usuario inexistente")
+            );
+        if (dto.titulo() == null || dto.titulo().isBlank()) {
+            throw new RuntimeException("Informe um título");
+        }
+        if(dto.status()==null){
+            throw new RuntimeException("Informe um status");
+        }
+        if(dto.prioridade()==null){
+            throw new RuntimeException("Informe uma prioridade");
+        }
+        Tarefa tarefa = Tarefa.builder()
+                .titulo(dto.titulo())
+                .descricao(dto.descricao())
+                .status(dto.status())
+                .prioridade(dto.prioridade())
+                .dataEntrega(dto.dataEntrega())
+                .usuario(donoDaTarefa)
+                .build();
+
     }
 
     public TarefaResponseDTO ler(Long id) {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tarefa nao encontrada"));
+        Usuario usuarioLogado=getUsuarioLogado();
+        if(usuarioLogado.getRole()!=Role.ADMIN&&!tarefa.getUsuario().getId().equals(usuarioLogado.getId())){
+            throw new ForbiddenException("Nao e possivel acessar essa tarefa");
+        }
         return new TarefaResponseDTO(
                 tarefa.getId(),
                 tarefa.getTitulo(),
@@ -66,7 +108,14 @@ public class TarefaService {
     }
 
     public List<TarefaResponseDTO> lerTodos() {
-        List<Tarefa> tarefas = tarefaRepository.findAll();
+        Usuario usuarioLogado=getUsuarioLogado();
+        List<Tarefa> tarefas=List.of();
+        if(isAdmin(usuarioLogado)){
+            tarefas=tarefaRepository.findAll();
+        }
+        else{
+            tarefas=tarefaRepository.findByUsuarioId(usuarioLogado.getId());
+        }
         if (tarefas.isEmpty()) {
             throw new NotFoundException("Nao ha tarefas");
         }
@@ -88,14 +137,29 @@ public class TarefaService {
 
     public List<TarefaResponseDTO> filtrar(PrioridadeTarefa prioridade,StatusTarefa status){
         List<Tarefa> tarefas = List.of();
-        if(prioridade!=null && status!=null){
-            tarefas= tarefaRepository.findByPrioridadeAndStatus(prioridade,status);
+        if(isAdmin(getUsuarioLogado())) {
+            if (prioridade != null && status != null) {
+                tarefas = tarefaRepository.findByPrioridadeAndStatus(prioridade, status);
+            } else if (prioridade == null && status != null) {
+                tarefas = tarefaRepository.findByStatus(status);
+            } else if (prioridade != null && status == null) {
+                tarefas = tarefaRepository.findByPrioridade(prioridade);
+            } else {
+                tarefas = tarefaRepository.findAll();
+            }
         }
-        else if(prioridade==null && status !=null){
-            tarefas= tarefaRepository.findByStatus(status);
-        }
-        else if (prioridade !=null && status == null){
-            tarefas=tarefaRepository.findByPrioridade(prioridade);
+        else {
+            Long usuarioId = getUsuarioLogado().getId();
+
+            if (prioridade != null && status != null) {
+                tarefas = tarefaRepository.findByUsuarioIdAndPrioridadeAndStatus(usuarioId, prioridade, status);
+            } else if (prioridade == null && status != null) {
+                tarefas = tarefaRepository.findByUsuarioIdAndStatus(usuarioId, status);
+            } else if (prioridade != null) {
+                tarefas = tarefaRepository.findByUsuarioIdAndPrioridade(usuarioId, prioridade);
+            } else {
+                tarefas = tarefaRepository.findByUsuarioId(usuarioId);
+            }
         }
         if(tarefas.isEmpty()){
             throw new NotFoundException("Nao foram encontradas tarefas com esse(s) filtros");
@@ -116,15 +180,24 @@ public class TarefaService {
 
     @Transactional
     public void deletar(Long id) {
+        Usuario logado=getUsuarioLogado();
         Tarefa tarefa=tarefaRepository.findById(id).orElseThrow(
                 ()->new NotFoundException("Nao e possivel deletar uma tarefa inexistente"));
+        if(!isAdmin(logado) && !tarefa.getUsuario().getId().equals(logado.getId())){
+            throw new ForbiddenException("Nao e possivel deletar tarefa que nao é sua");
+        }
         tarefaRepository.delete(tarefa);
     }
 
     @Transactional
     public TarefaResponseDTO atualizar(Long id, TarefaRequestDTO dto){
+        Usuario logado= getUsuarioLogado();
+
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(()->new NotFoundException("Não existe uma tarefa com esse ID"));
+        if(!isAdmin(logado) && !tarefa.getUsuario().getId().equals(logado.getId())){
+            throw new ForbiddenException("Nao e possivel atualizar tarefa que nao é sua");
+        }
         tarefa.setTitulo(dto.titulo());
         tarefa.setDescricao(dto.descricao());
         tarefa.setStatus(dto.status());
@@ -145,8 +218,12 @@ public class TarefaService {
     }
     @Transactional
     public TarefaResponseDTO concluir(Long id){
+        Usuario logado=getUsuarioLogado();
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(()->new NotFoundException("Tarefa nao encontrada"));
+        if(!isAdmin(logado) && !tarefa.getUsuario().getId().equals(logado.getId())){
+            throw new ForbiddenException("Nao e possivel concluir tarefa que nao é sua");
+        }
         if(tarefa.getDataConclusao()!=null||tarefa.getStatus()==StatusTarefa.CONCLUIDA){
             throw  new RuntimeException("A tarefa ja esta concluida");
         }
@@ -168,7 +245,11 @@ public class TarefaService {
     }
     public List<TarefaResponseDTO> lerTarefasUsuario(Long id, StatusTarefa status,
                                                      PrioridadeTarefa prioridadeTarefa){
-        if(!tarefaRepository.existsById(id)){
+        Usuario logado=getUsuarioLogado();
+        if(!isAdmin(logado)&&!id.equals(logado.getId())){
+            throw new ForbiddenException("Nao é possivel acessar");
+        }
+        if(!usuarioRepository.existsById(id)){
             throw new NotFoundException("Nao existe esse usuario");
         }
         List<Tarefa> tarefas=tarefaRepository.findByUsuarioId(id);

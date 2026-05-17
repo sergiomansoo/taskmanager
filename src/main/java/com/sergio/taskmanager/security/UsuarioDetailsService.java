@@ -16,12 +16,13 @@ public class UsuarioDetailsService implements UserDetailsService {
     private final UsuarioRepository usuarioRepository;
     @Override
     public @NotNull UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        if(!usuarioRepository.existsByEmail(email)){
+        String emailNormalizado = email.trim().toLowerCase();
+        if(!usuarioRepository.existsByEmail(emailNormalizado)){
             throw new UsernameNotFoundException("Usuario nao encontrado");
         }
-        Usuario usuario=usuarioRepository.findByEmail(email);
+        Usuario usuario=usuarioRepository.findByEmail(emailNormalizado);
         return User.builder()
-                .username(email)
+                .username(usuario.getEmail())
                 .password(usuario.getSenha())
                 .roles(usuario.getRole().name())
                 .build();
