@@ -1,15 +1,12 @@
 # Task Manager API
 
-API REST para gerenciamento de tarefas, desenvolvida com Java e Spring Boot.
+API REST para gerenciamento de tarefas desenvolvida com Java e Spring Boot.
 
-Este projeto foi criado para praticar a construção de uma API completa, passando por autenticação, autorização, persistência em banco de dados, documentação interativa e deploy. A ideia foi sair de um CRUD simples e montar uma aplicação com regras de acesso, separação de responsabilidades e um fluxo mais próximo do que eu encontraria em um projeto real.
-
-A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar tarefas. Usuários comuns conseguem acessar apenas suas próprias tarefas, enquanto usuários administradores possuem permissões maiores dentro do sistema.
+A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar tarefas com controle de acesso baseado em perfis. Usuários comuns acessam apenas suas próprias tarefas, enquanto administradores possuem permissões ampliadas dentro do sistema.
 
 ## Funcionalidades
 
-- Cadastro de usuários
-- Login com autenticação JWT
+- Cadastro e autenticação de usuários com JWT
 - Criptografia de senha
 - Controle de acesso com Spring Security
 - Perfis de acesso `USER` e `ADMIN`
@@ -18,11 +15,11 @@ A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar ta
 - Filtro de tarefas por status e prioridade
 - Consulta de usuários
 - Tratamento centralizado de exceções
-- Documentação da API com Swagger
+- Documentação interativa com Swagger
 - Deploy com Docker no Render
 - Banco PostgreSQL em produção
 
-## Tecnologias Utilizadas
+## Tecnologias
 
 - Java 21
 - Spring Boot
@@ -41,7 +38,7 @@ A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar ta
 
 ## Arquitetura
 
-O projeto foi organizado em camadas para manter cada parte da aplicação com uma responsabilidade clara:
+O projeto é organizado em camadas, cada uma com responsabilidade bem definida:
 
 ```text
 src/main/java/com/sergio/taskmanager
@@ -62,9 +59,9 @@ src/main/java/com/sergio/taskmanager
 
 ## Banco de Dados
 
-Durante o desenvolvimento local, o projeto começou usando H2 para facilitar os testes iniciais. Depois, a aplicação foi adaptada para PostgreSQL, que é o banco utilizado no ambiente hospedado.
+Em desenvolvimento, a aplicação utiliza H2 para facilitar os testes locais. Em produção, o banco é PostgreSQL.
 
-As configurações sensíveis do banco são carregadas por variáveis de ambiente:
+As configurações sensíveis são carregadas por variáveis de ambiente:
 
 ```properties
 spring.datasource.url=${DATABASE_URL}
@@ -72,15 +69,11 @@ spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
 ```
 
-O Hibernate é usado junto com o Spring Data JPA para mapear as entidades Java para tabelas no banco de dados e facilitar operações como salvar, buscar, atualizar e excluir registros.
-
 ## Modelo Relacional
 
-O modelo abaixo representa a estrutura principal do banco de dados, com a relação entre usuários e tarefas:
+<img src="docs/database-model.png" width="150" alt="Modelo relacional do Task Manager">
 
-![Modelo relacional do Task Manager](docs/database-model.png)
-
-Cada usuário pode possuir várias tarefas, enquanto cada tarefa pertence a um único usuário. No código, o usuário também possui um campo `role`, usado para diferenciar os perfis `USER` e `ADMIN`.
+Cada usuário pode possuir várias tarefas, enquanto cada tarefa pertence a um único usuário. O campo `role` no usuário diferencia os perfis `USER` e `ADMIN`.
 
 ## Deploy
 
@@ -88,19 +81,19 @@ A API está hospedada no Render e a documentação pode ser acessada pelo Swagge
 
 [https://taskmanager-xlm1.onrender.com/swagger-ui/index.html](https://taskmanager-xlm1.onrender.com/swagger-ui/index.html)
 
-Como o projeto está em um plano gratuito, a primeira requisição pode demorar alguns segundos caso o serviço esteja em repouso.
+> O serviço utiliza o plano gratuito do Render. A primeira requisição pode levar alguns segundos caso o servidor esteja em repouso.
 
-## Acesso Para Teste
+## Acesso para Teste
 
-Já existem dois usuários cadastrados no banco para facilitar a avaliação do projeto:
+Dois usuários já estão cadastrados no banco:
 
-```text
+```
 ADMIN
 Email: admin@taskmanager.com
 Senha: admin123
 ```
 
-```text
+```
 USER
 Email: user@taskmanager.com
 Senha: user123
@@ -114,23 +107,23 @@ Para testar rotas protegidas pelo Swagger:
 4. Clique em **Authorize**
 5. Informe o token no formato:
 
-```text
+```
 Bearer seu_token_aqui
 ```
 
-## Endpoints Principais
+## Endpoints
 
 ### Autenticação
 
 | Método | Endpoint | Descrição |
-|---|---|---|
+|--------|----------|-----------|
 | POST | `/auth/register` | Cadastra um novo usuário |
 | POST | `/auth/login` | Realiza login e retorna um token JWT |
 
 ### Usuários
 
 | Método | Endpoint | Descrição |
-|---|---|---|
+|--------|----------|-----------|
 | GET | `/usuario/me` | Retorna os dados do usuário autenticado |
 | GET | `/usuario` | Lista todos os usuários |
 | GET | `/usuario/{id}` | Busca um usuário por ID |
@@ -142,7 +135,7 @@ Bearer seu_token_aqui
 ### Tarefas
 
 | Método | Endpoint | Descrição |
-|---|---|---|
+|--------|----------|-----------|
 | POST | `/tarefa` | Cria uma tarefa para o usuário autenticado |
 | POST | `/tarefa/{id}` | Cria uma tarefa para um usuário específico |
 | GET | `/tarefa` | Lista tarefas |
@@ -189,17 +182,17 @@ Bearer seu_token_aqui
 
 ## Status e Prioridades
 
-Status disponíveis:
+**Status disponíveis:**
 
-```text
+```
 PENDENTE
 EM_ANDAMENTO
 CONCLUIDA
 ```
 
-Prioridades disponíveis:
+**Prioridades disponíveis:**
 
-```text
+```
 BAIXA
 MEDIA
 ALTA
@@ -222,29 +215,15 @@ cd taskmanager
 Execute com Maven Wrapper:
 
 ```bash
+# Linux/macOS
 ./mvnw spring-boot:run
-```
 
-No Windows:
-
-```bash
+# Windows
 mvnw.cmd spring-boot:run
 ```
 
-A aplicação será iniciada em:
-
-```text
-http://localhost:8080
-```
+A aplicação estará disponível em `http://localhost:8080`.
 
 ## Docker
 
-O projeto possui um `Dockerfile`, usado no deploy da aplicação no Render. Com isso, o ambiente de execução fica mais previsível, já que a aplicação roda dentro de um container com Java 21.
-
-## O Que Aprendi
-
-Com esse projeto, consegui praticar melhor a construção de uma API REST com Spring Boot, principalmente a parte de autenticação com JWT e controle de permissões com Spring Security.
-
-Também trabalhei com persistência usando JPA/Hibernate, organização em camadas, uso de DTOs, tratamento de exceções e documentação com Swagger.
-
-Além da parte de código, também passei pelo processo de preparar a aplicação para produção: configurar variáveis de ambiente, usar PostgreSQL no deploy e criar um Dockerfile para rodar o projeto no Render.
+O projeto inclui um `Dockerfile` utilizado no deploy no Render. A aplicação roda dentro de um container com Java 21, garantindo um ambiente de execução consistente entre desenvolvimento e produção.
