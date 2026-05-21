@@ -36,6 +36,14 @@ A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar ta
 - Docker
 - Render
 
+## Deploy
+
+A API está hospedada no Render e a documentação pode ser acessada pelo Swagger:
+
+[https://taskmanager-xlm1.onrender.com/swagger-ui/index.html](https://taskmanager-xlm1.onrender.com/swagger-ui/index.html)
+
+> O serviço utiliza o plano gratuito do Render. A primeira requisição pode levar alguns segundos caso o servidor esteja em repouso.
+
 ## Arquitetura
 
 O projeto é organizado em camadas, cada uma com responsabilidade bem definida:
@@ -74,14 +82,6 @@ spring.datasource.password=${DB_PASSWORD}
 <img src="docs/database-model.png" width="150" alt="Modelo relacional do Task Manager">
 
 Cada usuário pode possuir várias tarefas, enquanto cada tarefa pertence a um único usuário. O campo `role` no usuário diferencia os perfis `USER` e `ADMIN`.
-
-## Deploy
-
-A API está hospedada no Render e a documentação pode ser acessada pelo Swagger:
-
-[https://taskmanager-xlm1.onrender.com/swagger-ui/index.html](https://taskmanager-xlm1.onrender.com/swagger-ui/index.html)
-
-> O serviço utiliza o plano gratuito do Render. A primeira requisição pode levar alguns segundos caso o servidor esteja em repouso.
 
 ## Acesso para Teste
 
