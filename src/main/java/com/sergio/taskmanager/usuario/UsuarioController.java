@@ -23,7 +23,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<String> criar(@RequestBody UsuarioRequest usuarioRequest){
         usuarioService.criar(usuarioRequest);
-        return ResponseEntity.ok("Usuario criado com sucesso!");
+        return ResponseEntity.ok("Usuário criado com sucesso!");
     }
     @Operation(summary = "Meu perfil", description = "Retorna os dados do usuário autenticado.")
     @GetMapping("/me")
@@ -45,19 +45,19 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Long id){
         usuarioService.deletar(id);
-        return ResponseEntity.ok("Usuario deletado com sucesso!");
+        return ResponseEntity.ok("Usuário deletado com sucesso!");
     }
     @Operation(summary = "Atualiza usuário por id", description = "Atualiza usuario passando seu id caso logado tenha permissao")
     @PutMapping("/{id}")
     public ResponseEntity<String> atualizar(@PathVariable Long id, @RequestBody UsuarioUpdateRequest request){
         usuarioService.atualizar(id, request);
-        return ResponseEntity.ok("Usuario atualizado com sucesso!");
+        return ResponseEntity.ok("Usuário atualizado com sucesso!");
     }
     @Operation(summary = "Atualiza usuario logado", description = "Usuario logado no sistema atualiza seus atributos")
     @PutMapping
     public ResponseEntity<String> atualizarMe(@RequestBody UsuarioUpdateRequest request){
         usuarioService.atualizarMe(request);
-        return ResponseEntity.ok("Usuario atualizado com sucesso!");
+        return ResponseEntity.ok("Usuário atualizado com sucesso!");
     }
 
 }
