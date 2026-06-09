@@ -4,7 +4,7 @@ import com.sergio.taskmanager.tarefa.enums.PrioridadeTarefa;
 import com.sergio.taskmanager.tarefa.enums.StatusTarefa;
 import com.sergio.taskmanager.usuario.Usuario;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public class Tarefa {
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
-    @Future
+    @FutureOrPresent
     @Column(name = "data_entrega")
     private LocalDate dataEntrega;
 
