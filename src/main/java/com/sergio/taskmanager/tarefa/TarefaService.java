@@ -83,6 +83,7 @@ public class TarefaService {
                 .dataEntrega(dto.dataEntrega())
                 .usuario(donoDaTarefa)
                 .build();
+        tarefaRepository.save(tarefa);
 
     }
 
