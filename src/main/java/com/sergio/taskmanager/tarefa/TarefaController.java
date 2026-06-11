@@ -26,6 +26,7 @@ public class TarefaController {
         tarefaService.criar(dto);
         return ResponseEntity.ok("Tarefa criada com sucesso!");
     }
+    @Operation(summary = "ADMIN cria tarefa para Usuário através do ID")
     @PostMapping("/{id}")
     public ResponseEntity<String> criarId(@PathVariable Long id,@RequestBody TarefaRequestDTO dto) {
         tarefaService.criarId(id,dto);
