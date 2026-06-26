@@ -5,7 +5,7 @@ API REST para gerenciamento de tarefas desenvolvida com Java e Spring Boot.
 A aplicação permite cadastrar usuários, realizar login com JWT e gerenciar tarefas com controle de acesso baseado em perfis. Usuários comuns acessam apenas suas próprias tarefas, enquanto administradores possuem permissões ampliadas dentro do sistema.
 
 > **Frontend:** [taskmanager](https://github.com/sergiomansoo/taskmanager-front) — desenvolvido em React.                 
-> **Deploy:** (taskmanager-render](https://taskmanager-xlm1.onrender.com/swagger-ui/index.html#/))
+> **Deploy:** [taskmanager-render](https://taskmanager-xlm1.onrender.com/swagger-ui/index.html#/)
 
 
 
